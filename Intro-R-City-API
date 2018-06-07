@@ -1,0 +1,59 @@
+# Download a text reader like Atom, NotePad++ or Sublime. I am using Atom https://atom.io/ .
+
+# Install and launch.
+
+# Close all the welcome tabs so you are left with a blank, untitled project.
+
+# Copy and paste this code into the editor.
+
+# Save to your desktop.
+
+# Download and install R at https://cran.case.edu/
+
+# Download and install RStudio https://www.rstudio.com/products/rstudio/download/
+
+# We are going to visualize water main breaks in Syracuse, following modified instructions from http://data.syrgov.net/pages/tutorial
+
+# R uses packages that make programming easy. First we install the packages.
+
+# Install each package individually by pressing "Run" or command/control enter when on that line.
+
+install.packages("dplyr")
+
+install.packages("jsonlite")
+
+install.packages("leaflet")
+
+install.packages("ggplot2")
+
+# Now we call the package and activite it
+
+library(dplyr)
+library(jsonlite)
+library(leaflet)
+library(ggplot2)
+
+# Now we connect to the API
+
+url <- "https://services6.arcgis.com/bdPqSfflsdgFRVVM/arcgis/rest/services/Water_Main_Breaks/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json"
+jsondata <- fromJSON(url)
+
+# We are renaming the data as simply "data2", reducing the amount of information in the file, and asking it to display the variable names and first rows of data.
+
+data2 <- jsondata$features$attributes
+head(data2)
+
+# Creating the background map
+
+breaks_map <- leaflet() %>% addTiles() %>% setView(lng = -76.1455, lat = 43.0493, zoom = 12)
+breaks_map
+
+# Next, we add all of the incidents as points to the map. We’ll also change the basemap, so you can see some of other map styles offered. Try playing around with the "color," “radius”, “fillcolor”, and “fillopacity” parameters to get the markers that you think look best.
+
+data2$popup <- paste("Date: ", data2$weekday, ", ", data2$month, "/", data2$date, " Location: ", data$location ,sep = "")
+
+breaks_map <- leaflet() %>%
+  addProviderTiles("Stamen.Toner") %>%
+  addCircles(lng=data2$lon, lat=data2$lat, popup = data2$popup, radius = 50, color = "red")
+
+breaks_map
